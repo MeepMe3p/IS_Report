@@ -1,0 +1,18 @@
+# Ignore specific folders inside data/
+data/images_001/
+data/images_002/
+data/images_003/
+data/images_004/
+data/images_005/
+data/images_006/
+data/images_007/
+data/images_008/
+data/images_009/
+data/images_010/
+data/images_011/
+data/images_012/
+data/train_images/
+data/test_images/
+data/validation_images/
+data/numpy/
+data/filtered_images/
