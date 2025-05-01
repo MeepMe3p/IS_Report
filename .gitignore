@@ -15,5 +15,5 @@ data/train_images/
 data/test_images/
 data/validation_images/
 data/numpy/
-data/checkpoint/
+checkpoint/
 data/filtered_images/
