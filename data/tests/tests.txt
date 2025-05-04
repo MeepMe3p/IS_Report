@@ -1,0 +1,1 @@
+00030786_003.png,Cardiomegaly|Effusion|Emphysema|Pneumothorax,4,30786,61,F,AP,3056,2544,0.139,0.139
