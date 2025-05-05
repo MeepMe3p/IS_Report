@@ -16,4 +16,5 @@ data/test_images/
 data/validation_images/
 data/numpy/
 checkpoint/
+history/
 data/filtered_images/
