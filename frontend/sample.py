@@ -2,9 +2,9 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import random
+import cv2
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-import cv2
 
 model = load_model("../checkpoint/model3_50.keras")
 
