@@ -5,6 +5,16 @@ import random
 import cv2
 import tensorflow as tf
 from tensorflow.keras.models import load_model
+import os
+import gdown
+
+# model = load_model("checkpoint/model3_50.keras")
+os.makedirs("checkpoint", exist_ok=True)
+
+# Download model into the checkpoint folder
+url = "https://drive.google.com/uc?id=18SpEABjA3SOafc_gsvoSnCapzJi8SdUp"
+output = "checkpoint/model3_50.keras"
+gdown.download(url, output, quiet=False)
 
 model = load_model("checkpoint/model3_50.keras")
 
