@@ -74,12 +74,14 @@ if uploaded_file:
         st.success("Model ran successfully!")
 
         # -------- Simulated multi-label output --------
-        # Let's say we have 7 classes
+       
         labels = ['Atelectasis','Cardiomegaly','Edema','Effusion','Tortuous Aorta','Calcification of the Aorta','No Finding']
-        # preds = np.random.rand(len(labels))  # Random prediction scores
+   
         input_img = preprocess(image)
         preds = model.predict(input_img)[0]
-
+        st.subheader("📊 Prediction Scores")
+        score_table = {label: float(f"{score:.2f}") for label, score in zip(labels, preds)}
+        st.table(score_table)
         # Show buttons for classes where score > 0.5
         for i, score in enumerate(preds):
             print(i,score)
