@@ -6,7 +6,7 @@ import cv2
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-model = load_model("../checkpoint/model3_50.keras")
+model = load_model("checkpoint/model3_50.keras")
 
 def preprocess(img, size = (224,224)):
 
