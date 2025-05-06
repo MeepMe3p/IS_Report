@@ -57,7 +57,7 @@ uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
 
     # -------- Model Inference Button --------
     if st.button("Run Model"):
@@ -73,10 +73,10 @@ if uploaded_file:
         # Show buttons for classes where score > 0.5
         for i, score in enumerate(preds):
             print(i,score)
-            if score > 0.1:
+            if score > 0.5:
                 with st.expander(f"🔍 {labels[i]} (Score: {score:.2f})"):
                     # Simulated Grad-CAM image for now (placeholder)
-                    st.image("background.jpg", caption=f"Grad-CAM for {labels[i]}", use_column_width=True)
+                    st.image(input_img, caption=f"Grad-CAM for {labels[i]}", use_container_width=True)
                     pass
 
 st.markdown("</div>", unsafe_allow_html=True)
