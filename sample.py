@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 import os
 import gdown
 
+
 # model = load_model("checkpoint/model3_50.keras")
 os.makedirs("checkpoint", exist_ok=True)
 
@@ -17,6 +18,80 @@ output = "checkpoint/model3_50.keras"
 gdown.download(url, output, quiet=False)
 
 model = load_model("checkpoint/model3_50.keras")
+
+def grad_cam(model, layer_name,image , class_index, H=224, W=224):
+
+
+    img = image.convert('L').resize((W, H))  # grayscale and resize
+    array = tf.keras.utils.img_to_array(img)  # shape (H, W, 1)
+    array = np.expand_dims(array, axis=0)  # shape (1, H, W, 1)
+    array = array / 255.0
+    array = tf.convert_to_tensor(array, dtype=tf.float32)
+
+    print("the shape is: ", array.shape)
+
+
+    inputs = model.input  # shape (None, 224, 224, 1)
+
+    # Pass through conv2d (1-channel to 3-channel)
+    x = model.get_layer("conv2d")(inputs)
+
+    effnet = model.get_layer("efficientnetb0")
+
+    # builds a new functional model that reuses EfficientNet layers
+    # create a new model from the conv2d output to:
+
+    cam_layer = effnet.get_layer("block7a_project_bn").output
+    final_output = effnet.output
+
+    # from input to CAM + ouputt
+    effnet_model = tf.keras.models.Model(inputs=effnet.input, outputs=[cam_layer, final_output])
+
+    # Step 5: Now pass x (output of conv2d) through this
+    cam_output, prediction = effnet_model(x)
+
+    # Step 6: Build grad_model for Grad-CAM
+    grad_model = tf.keras.models.Model(inputs=inputs, outputs=[cam_output, prediction])
+
+    for i,layers in enumerate(grad_model.layers):
+        print(i,layers)
+    # grad_model.layers[2].summary()
+
+
+
+    with tf.GradientTape() as tape:
+        # tape.watch(model.input)
+        conv_outputs, predictions = grad_model(array)
+        class_score = predictions[:, class_index]
+
+    # Compute the gradient of the class score w.r.t. conv feature map
+    grads = tape.gradient(class_score, conv_outputs)
+
+    # Global average pool the gradients to get the weights
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+
+    # Multiply weights with feature map channels
+    conv_outputs = conv_outputs[0]  # remove batch dim
+    cam = tf.reduce_sum(tf.multiply(conv_outputs, pooled_grads), axis=-1)
+
+    # Normalize and resize
+    cam = np.maximum(cam, 0)
+    cam /= (cam.max() + 1e-8)
+    cam = cv2.resize(cam, (W, H))
+    cam = 1.0 - cam
+    cam = np.uint8(255 * cam)
+
+    original = np.array(img.convert("RGB"))
+
+    # Apply heatmap
+    heatmap = cv2.applyColorMap(cam, cv2.COLORMAP_JET)
+    overlay = cv2.addWeighted(original, 0.6, heatmap, 0.4, 0)
+
+    return Image.fromarray(overlay)
+
+def compute_gradcam(model, img, y_c,layer_name='top_conv'):
+    return grad_cam(model,layer_name,img,y_c)
+
 
 def preprocess(img, size = (224,224)):
 
@@ -84,11 +159,13 @@ if uploaded_file:
         st.table(score_table)
         # Show buttons for classes where score > 0.5
         for i, score in enumerate(preds):
-            print(i,score)
+            # print(i,score)
+            gradcam_img = compute_gradcam(model, image, i)
+
             if score > 0.5:
                 with st.expander(f"🔍 {labels[i]} (Score: {score:.2f})"):
                     # Simulated Grad-CAM image for now (placeholder)
-                    st.image(input_img, caption=f"Grad-CAM for {labels[i]}", use_container_width=True)
-                    pass
+                    st.image(gradcam_img, caption=f"Grad-CAM for {labels[i]}", use_container_width=True)
+                    
 
 st.markdown("</div>", unsafe_allow_html=True)
