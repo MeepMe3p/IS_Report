@@ -18,3 +18,4 @@ data/numpy/
 checkpoint/
 history/
 data/filtered_images/
+.devcontainer/
